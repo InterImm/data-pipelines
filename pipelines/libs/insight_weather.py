@@ -19,16 +19,56 @@ def get_remote(url_inp):
             print('Retry ({}) in {} seconds.'.format(which_retry, retry_sleep_time))
             sleep(retry_sleep_time)
             pass
+
+
+def dict_to_list(dic_inp, key_key_name = None, data_key_name = None):
+
+    if key_index_name is None:
+        key_index_name = 'index'
     
-def clean_up_response(rsp_inp, loaded_data = None):
+    if data_key_name is None:
+        data_key_name = 'data'
     
+    output = []
+    if isinstance(dic_inp, dict ):
+        for key, val in dic_inp.items():
+            output.append(
+                {
+                    key_key_name: key,
+                    data_key_name: val
+                    }
+            )
+
+    return 
+    
+def clean_up_response(
+    rsp_inp, 
+    loaded_data = None, 
+    list_data = True, 
+    force_list_data = True
+    ):
+    
+    # determine the data type
     if loaded_data is None:
-        loaded_data = {}
+        if list_data:
+            loaded_data = []
+        else:
+            loaded_data = {}
     
     sol_keys = rsp_inp.get('sol_keys')
 
+    current_data = {}
     if sol_keys is not None:
         for key in sol_keys:
-            loaded_data[key] = rsp_inp.get(key)
+            current_data[key] = rsp_inp.get(key)
+
+    if isinstance(loaded_data, list):
+        current_data = dict_to_list(current_data)
+        loaded_data = loaded_data + current_data
+    elif isinstance(loaded_data, dict):
+        loaded_data = {**loaded_data, **current_data}
+
+    if force_list_data and isinstance(loaded_data, dict):
+        loaded_dta = dict_to_list(loaded_data)
     
     return loaded_data
